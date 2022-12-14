@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { GlobalStyle } from './GlobalStyles';
 
 import { Statistics } from 'components/Statistics/Statistics';
@@ -6,33 +6,37 @@ import { FeedbackOptions } from 'components/Feedback/FeedbackOptions';
 import { Section } from 'components/Section/Section';
 import { Notification } from 'components/Notification/Notification';
 
-export class App extends Component {
-  state = {
-    good: 0,
-    neutral: 0,
-    bad: 0,
+export const App = () => {
+  const [good, setGood] = useState(0);
+  const [neutral, setNeutral] = useState(0);
+  const [bad, setBad] = useState(0);
+  
+  const handleFeedback = property => {
+    switch (property) {
+      case "good":
+        return setGood(prevState => prevState + 1);
+      case "neutral":
+        return setNeutral(prevState => prevState + 1);
+      case "bad":
+        return setBad(prevState => prevState + 1);
+      default:
+        throw new Error(`Unsupported type of ${property}`)
+    };
   };
+  
 
-  handleFeedback = property => {
-    this.setState(prevState => ({
-      [property]: prevState[property] + 1,
-    }));
-  };
-
-  countTotalFeedback = () => {
-    const { good, neutral, bad } = this.state;
+  const countTotalFeedback = () => {
     return good + neutral + bad;
   };
 
-  countPositiveFeedbackPercentage = () => {
-    const { good, neutral, bad } = this.state;
+  const countPositiveFeedbackPercentage = () => {
     const total = good + neutral + bad;
     return total > 0 ? Math.round((100 / total) * good) : 0;
   };
 
-  render() {
-    const keys = Object.keys(this.state);
-    const { good, neutral, bad } = this.state;
+  
+    const keys = ['good', 'neutral', 'bad'];
+    
     return (
       <div
         style={{
@@ -52,17 +56,17 @@ export class App extends Component {
         <Section title="Please leave feedback">
           <FeedbackOptions
             options={keys}
-            onLeaveFeedback={this.handleFeedback}
+            onLeaveFeedback={handleFeedback}
           />
         </Section>
         <Section title="Statistics">
-          {this.countTotalFeedback() !== 0 ? (
+          {countTotalFeedback() !== 0 ? (
             <Statistics
               good={good}
               neutral={neutral}
               bad={bad}
-              total={this.countTotalFeedback()}
-              positivePercentage={this.countPositiveFeedbackPercentage()}
+              total={countTotalFeedback()}
+              positivePercentage={countPositiveFeedbackPercentage()}
             />
           ) : (
             <Notification message="There is no feedback"></Notification>
@@ -71,6 +75,6 @@ export class App extends Component {
         <GlobalStyle />
       </div>
     );
-  }
+  
 };
 
